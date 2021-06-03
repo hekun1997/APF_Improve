@@ -69,7 +69,10 @@ def path_planning_with_plot(start_lnglat, end_lnglat, obstacles, enemies, dir=r'
     """
     filenames = ['县道_polyline.shp', '乡镇村道_polyline.shp', '行人道路_线.shp', '高速公路_线.shp', '国道_线.shp',
                  '其他路_polyline.shp', '九级路_线.shp', '省道_线.shp', '铁路_线.shp', '九级路_线.shp']
-    colors = ['yellow', 'grey', 'brown', 'orange', 'pink', 'green', 'grey', 'purple', 'pink', 'grey']
+    colors = ['red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'purple',
+              'brown', 'orange', 'pink', 'grey', 'brown', 'purple', 'pink', 'magenta', 'deepskyblue',
+              'y', 'crimson', 'sage', 'c']
+
 
     lat_start = min(start_lnglat[1], end_lnglat[1]) - 0.1
     lat_end = max(start_lnglat[1], end_lnglat[1]) + 0.1
@@ -340,10 +343,10 @@ def last_test():
 if __name__ == '__main__':
 
         # note: run this project.
-        start_lnglat = (104.40, 31.05)
+        start_lnglat = (104.11172, 31.05421)
         # end_lnglat = (103.96817, 31.26513)
-        end_lnglat = (104.42, 31.15)
-        path = path_planning_with_plot(start_lnglat, end_lnglat)
+        end_lnglat = (104.132, 31.06591)
+        path = path_planning_with_plot(start_lnglat, end_lnglat, 0, 0)
         print(path)
         print(len(path))
 

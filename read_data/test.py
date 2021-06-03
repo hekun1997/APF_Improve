@@ -1,4 +1,8 @@
+import math
+import os
 import sys
+
+import gdal
 import ogr
 import matplotlib.pyplot as plt
 from shapely import geometry
@@ -7,6 +11,7 @@ import csv
 import pandas as pd
 import numpy as np
 from Path_planning import assemble_graph_data, create_graph, get_shortest_path
+
 
 def read_shp():
     driver = ogr.GetDriverByName('ESRI Shapefile')  # 载入驱动
@@ -72,7 +77,6 @@ def simple_plt_with_data():
     plt.xlabel("lat")
     plt.ylabel("lng")
 
-
     plt.xticks(rotation=-15)
 
     plt.scatter(lat, lng, alpha=0.6)
@@ -107,14 +111,14 @@ def back_up():
     colors = ['yellow', 'grey', 'brown', 'orange', 'pink', 'green', 'grey', 'purple', 'pink', 'grey']
 
     point = gpd.GeoDataFrame([geometry.Point(0, 3), geometry.Point(3, 0)],
-              index=['a', 'b'], columns=['geometry'])
+                             index=['a', 'b'], columns=['geometry'])
 
     line = gpd.GeoDataFrame([geometry.LineString([(0, 0), (0, 3), (3, 3), (3, 0)]),
-                            geometry.LineString([(0, 1), (3, 1)]),
+                             geometry.LineString([(0, 1), (3, 1)]),
                              geometry.LineString([(0, 2), (3, 2)]),
                              geometry.LineString([(1, 0), (1, 3)]),
                              geometry.LineString([(2, 0), (2, 3)])],
-              index=['a', 'b', 'c', 'd', 'e'], columns=['geometry'])
+                            index=['a', 'b', 'c', 'd', 'e'], columns=['geometry'])
 
     enemy = gpd.GeoDataFrame([geometry.Point(3, 3), geometry.Point(0.5, 3)],
                              index=['a', 'b'], columns=['geometry'])
@@ -146,20 +150,101 @@ def back_up():
     plt.show()
 
 
-if __name__ == '__main__':
+def line_and_string():
     point = gpd.GeoDataFrame([geometry.Point(0, 3), geometry.Point(3, 0)],
-              index=['a', 'b'], columns=['geometry'])
+                             index=['a', 'b'], columns=['geometry'])
     enemy = gpd.GeoDataFrame([geometry.Point(3, 3), geometry.Point(0.5, 3)],
                              index=['a', 'b'], columns=['geometry'])
     line = gpd.GeoDataFrame([geometry.LineString([(0, 0), (0, 3), (3, 3), (3, 0)]),
-                            geometry.LineString([(0, 1), (3, 1)]),
+                             geometry.LineString([(0, 1), (3, 1)]),
                              geometry.LineString([(0, 2), (3, 2)]),
                              geometry.LineString([(1, 0), (1, 3)]),
                              geometry.LineString([(2, 0), (2, 3)])],
-              index=['a', 'b', 'c', 'd', 'e'], columns=['geometry'])
+                            index=['a', 'b', 'c', 'd', 'e'], columns=['geometry'])
 
     line.intersects(enemy)  # 看哪条线与点相交
 
     ax = point.plot(color='blue')
     ax = line.plot(ax=ax, color='pink')
     ax = enemy.plot(ax=ax, color='red')
+
+
+def assemble_filepath(filenames, base_path, dir_prefix = 'ASTGTM2_'):
+    paths = list()
+    for filename in filenames:
+        path = base_path + '\\' + dir_prefix + filename + '\\' + dir_prefix + filename + '_dem.tif'
+        paths.append(path)
+    return paths
+
+
+def get_range_ele():
+    start_lnglat = (103.84093, 31.33363)
+    end_lnglat = (104.84818, 31.33454)
+
+    max_lng = math.ceil(max(start_lnglat[0], end_lnglat[0]))
+    min_lng = math.floor(min(start_lnglat[0], end_lnglat[0]))
+    max_lat = math.ceil(max(start_lnglat[1], end_lnglat[1]))
+    min_lat = math.floor(min(start_lnglat[1], end_lnglat[1]))
+
+    filenames = list()
+
+    for lng in range(min_lng, max_lng):
+        for lat in range(min_lat, max_lat):
+            print((lng, lat))
+            lnglat = ''
+
+            if lat > 0:
+                lnglat += 'N' + str(lat)
+            else:
+                lnglat += 'S' + str(lat)
+
+            if lng > 0:
+                lnglat += 'E' + str(lng)
+            else:
+                lnglat += 'W' + str(lng)
+
+            filenames.append(lnglat)
+    print(filenames)
+
+    base_path = r'C:\D-drive-37093\PycharmWorkSpace\apf_enemy\Data'
+    dir_prefix = 'ASTGTM2_'
+
+    paths = assemble_filepath(filenames, base_path)
+    print(paths)
+
+    for path in paths:
+        geo = gdal.Open(path)
+        print(geo.GetGeoTransform())
+
+
+def concat_lnglat(lng, lat):
+    lnglat = ''
+    if lat > 0:
+        lnglat += 'N' + str(lat)
+    else:
+        lnglat += 'S' + str(lat)
+
+    if lng > 0:
+        lnglat += 'E' + str(lng)
+    else:
+        lnglat += 'W' + str(lng)
+
+    return lnglat
+
+
+if __name__ == '__main__':
+    input_lnglat = (103.84093, 31.33363)
+
+    lng = math.ceil(input_lnglat[0])
+    lat = math.floor(input_lnglat[1])
+
+    lnglat = concat_lnglat(lng, lat)
+
+    base_path = r'C:\D-drive-37093\PycharmWorkSpace\apf_enemy\Data'
+    dir_prefix = 'ASTGTM2_'
+
+    path = base_path + '\\' + dir_prefix + lnglat + '\\' + dir_prefix + lnglat + '_dem.tif'
+    print(path)
+
+    geo = gdal.Open(path)
+    print(geo.GetGeoTransform())
