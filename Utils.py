@@ -1,6 +1,8 @@
 import math
 import gdal
 
+import gradient
+
 
 def get_dem_info(path):
     dataset = gdal.Open(path)
@@ -38,7 +40,7 @@ def get_elevation(lnglat):
     elevation_info_array = dem_gcs.ReadAsArray().astype(float)
 
     gtf = dataset.GetGeoTransform()
-    print(gtf)
+    # print(gtf)
 
     x_geo = lnglat[0]  # longitude
     y_geo = lnglat[1]  # latitude
@@ -104,11 +106,87 @@ def get_colors():
     return colors
 
 
+def lnglat_to_xy(lnglat, lnglat_range, x_size, y_size):
+    miny = lnglat_range['miny']  # min_lat
+    maxy = lnglat_range['maxy']
+    minx = lnglat_range['minx']  # min_lng
+    maxx = lnglat_range['maxx']
+
+    x = round(((lnglat[0] - minx) / (maxx - minx)) * x_size)  # 取整， 四舍五入，方便后面计算
+    y = round(((lnglat[1] - miny) / (maxy - miny)) * y_size)
+
+    return (x, y)
+
+
+def list_lnglat_to_xy(list_lnglat, lnglat_range, x_size, y_size):
+    miny = lnglat_range['miny']  # min_lat
+    maxy = lnglat_range['maxy']
+    minx = lnglat_range['minx']  # min_lng
+    maxx = lnglat_range['maxx']
+
+    list_xy = list()
+
+    for lnglat in list_lnglat:
+        x = round(((lnglat[0] - minx) / (maxx - minx)) * x_size)  # 取整， 四舍五入，方便后面计算
+        y = round(((lnglat[1] - miny) / (maxy - miny)) * y_size)
+        list_xy.append((x, y))
+
+    return list_xy
+
+
+def xy_to_lnglat(xy, lnglat_range, x_size, y_size):
+    miny = lnglat_range['miny']  # min_lat
+    maxy = lnglat_range['maxy']
+    minx = lnglat_range['minx']  # min_lng
+    maxx = lnglat_range['maxx']
+
+    lng = (xy[0] / x_size) * (maxx - minx) + minx
+    lat = (xy[1] / y_size) * (maxy - miny) + miny
+
+    return (lng, lat)
+
+
+def list_xy_to_lnglat(list_xy, lnglat_range, x_size, y_size):
+    miny = lnglat_range['miny']  # min_lat
+    maxy = lnglat_range['maxy']
+    minx = lnglat_range['minx']  # min_lng
+    maxx = lnglat_range['maxx']
+
+    list_lnglat = list()
+
+    for xy in list_xy:
+        lng = (xy[0] / x_size) * (maxx - minx) + minx
+        lat = (xy[1] / y_size) * (maxy - miny) + miny
+        list_lnglat.append((lng, lat))
+
+    return list_lnglat
+
+
+def get_gradient(start_lnglat, end_lnglat):
+    gradients = gradient.create_gradient(start_lnglat, end_lnglat)
+    return gradients
+
+
+def check_obs_and_enemy(dynamic_obs, enemies, lnglat_range):
+    min_lat = lnglat_range['miny']  # min_lat
+    max_lat = lnglat_range['maxy']
+    min_lng = lnglat_range['minx']  # min_lng
+    max_lng = lnglat_range['maxx']
+
+    ret_obs = list()
+    ret_enemies = list()
+
+    for obs in dynamic_obs:  # lnglat
+        if min_lng < obs[0] < max_lng and min_lat < obs[1] < max_lat:
+            ret_obs.append(obs)
+
+    for enemy in enemies:
+        if min_lng < enemy[0] < max_lng and min_lat < enemy[1] < max_lat:
+            ret_enemies.append(enemy)
+
+    return ret_obs, ret_enemies
+
+
 if __name__ == '__main__':
     # h = get_elevation((102.99986111111112, 32.00013888888889), path)
     lnglat = (102.99986111111102, 32.00013888888889)
-
-    elevation = get_elevation(lnglat)
-
-
-    print(elevation)

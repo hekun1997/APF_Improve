@@ -1,5 +1,7 @@
 import os
 import numpy as np
+
+import Utils
 from Agent_Obstacle_Goal import *
 from MapProcess import position_to_LngLatNum
 import pandas as pd
@@ -365,6 +367,15 @@ def dynamic_obs_to_obs_XY(dynamic_obs, obs_XY, df, Y):
     return obs_XY
 
 
+def input_obs_to_xy(dynamic_obs, obs_XY, lnglat_range):
+    for obstacle in dynamic_obs:
+        obstacle_xy = Utils.lnglat_to_xy(obstacle, lnglat_range)
+        obs_XY.append(obstacle_xy)
+
+    return obs_XY
+
+
+
 def enemys_to_enemy_XY(enemys,df,Y):
     # 首先将经纬度映射到df中的点，在根据index转换为（x,y）
     list_index = []
@@ -460,7 +471,7 @@ def drawAll(obs_XY, enemy_XY, map_list, start_position, end_position,visited_lis
 def visited_list_to_res(visited_list):
     temp = []
     for item in visited_list:
-        temp.append((round(item[0]/6), round(item[1]/6)))
+        temp.append((round(item[0]), round(item[1])))
 
     # 去掉重复的
     res = []

@@ -1,3 +1,5 @@
+import math
+
 import networkx as nx
 import geopandas as gpd
 import pandas as pd
@@ -8,6 +10,8 @@ from shapely.geometry import Point
 from scipy.spatial import cKDTree
 import numpy as np
 import sys
+
+import Utils
 
 
 def path_planning(start_lnglat, end_lnglat, encoding='GBK', dir=r'C:\D-drive-37093\research\路径规划\China_Roads_All_WGS84_2016'):
@@ -64,20 +68,14 @@ def path_planning(start_lnglat, end_lnglat, encoding='GBK', dir=r'C:\D-drive-370
 
 
 def path_planning_with_plot(start_lnglat, end_lnglat, obstacles, enemies, dir=r'C:\D-drive-37093\research\路径规划\China_Roads_All_WGS84_2016'):
-    """
-    :return:
-    """
+
     filenames = ['县道_polyline.shp', '乡镇村道_polyline.shp', '行人道路_线.shp', '高速公路_线.shp', '国道_线.shp',
                  '其他路_polyline.shp', '九级路_线.shp', '省道_线.shp', '铁路_线.shp', '九级路_线.shp']
     colors = ['red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'purple',
               'brown', 'orange', 'pink', 'grey', 'brown', 'purple', 'pink', 'magenta', 'deepskyblue',
               'y', 'crimson', 'sage', 'c']
 
-
-    lat_start = min(start_lnglat[1], end_lnglat[1]) - 0.1
-    lat_end = max(start_lnglat[1], end_lnglat[1]) + 0.1
-    lng_start = min(start_lnglat[0], end_lnglat[0]) - 0.1
-    lng_end = max(start_lnglat[0], end_lnglat[0]) + 0.1
+    lat_start, lat_end, lng_start, lng_end = get_lnglat_range(start_lnglat, end_lnglat)
 
     start_node, end_node = None, None
     all_part_df = pd.DataFrame()
@@ -115,7 +113,7 @@ def path_planning_with_plot(start_lnglat, end_lnglat, obstacles, enemies, dir=r'
         x.append(float(temp_xy[0]))
         y.append(float(temp_xy[1]))
 
-    plt.plot(x, y, 'o')
+    plt.plot(x, y, '.')
     plt.show()
 
     # if start point, end point not in path, add that to path.
@@ -128,7 +126,7 @@ def assemble_input_data(input_data):
     temp_start_lnglat = input_data[0].replace("(", "").replace(")", "").strip().split(',')
     temp_end_lnglat = input_data[1].replace("(", "").replace(")", "").strip().split(',')
 
-    start_lng = round(float(temp_start_lnglat[0].strip()), 5)
+    start_lng = round(float(temp_start_lnglat[0].strip()), 5)  # 起始点的lng值
     start_lat = round(float(temp_start_lnglat[1].strip()), 5)
 
     end_lng = round(float(temp_end_lnglat[0].strip()), 5)
@@ -137,17 +135,7 @@ def assemble_input_data(input_data):
     start_lnglat = (start_lng, start_lat)
     end_lnglat = (end_lng, end_lat)
 
-    # lat_start = min(start_lnglat[1], end_lnglat[1]) - 0.1
-    # lat_end = max(start_lnglat[1], end_lnglat[1]) + 0.1
-    # lng_start = min(start_lnglat[0], end_lnglat[0]) - 0.1
-    # lng_end = max(start_lnglat[0], end_lnglat[0]) + 0.1
-
-    lat_start = min(start_lnglat[1], end_lnglat[1]) - 0.1
-    lat_end = max(start_lnglat[1], end_lnglat[1]) + 0.1
-    lng_start = min(start_lnglat[0], end_lnglat[0]) - 0.1
-    lng_end = max(start_lnglat[0], end_lnglat[0]) + 0.1
-
-    return lat_start, lat_end, lng_start, lng_end
+    return start_lnglat, end_lnglat
 
 
 def assemble_graph_data(shp, graph_data):
@@ -191,6 +179,21 @@ def assemble_graph_data(shp, graph_data):
     return graph_data
 
 
+def get_lnglat_range(start_lnglat, end_lnglat):
+    min_lat = min(start_lnglat[1], end_lnglat[1])
+    max_lat = max(start_lnglat[1], end_lnglat[1])
+    min_lng = min(start_lnglat[0], end_lnglat[0])
+    max_lng = max(start_lnglat[0], end_lnglat[0])
+
+    range_val = max(max_lng - min_lng, max_lat - min_lat) / 2
+
+    min_lat -= range_val
+    max_lat += range_val
+    min_lng -= range_val
+    max_lng += range_val
+
+    return min_lat, max_lat, min_lng, max_lng
+
 def get_nearest_point(geo_dataframe, start_lnglat, end_lnglat):
     start_gpd = gpd.GeoDataFrame([['start', 0, Point(start_lnglat[0], start_lnglat[1])]]
                                  , columns=['Name', 'ID', 'geometry'])
@@ -211,7 +214,7 @@ def create_graph(graph_data):
 
 
 def get_shortest_path(graph, start_node, end_node):
-    path = nx.shortest_path(graph, start_node, end_node, weight='distance')
+    path = nx.shortest_path(graph, start_node, end_node, weight='distance', method='bellman-ford')
     return path
 
 
@@ -339,16 +342,70 @@ def last_test():
     plt.plot(x, y, 'o')
     plt.show()
 
+distance_between_points = 30
+
+def create_map_params(start_lnglat, end_lnglat):
+    miny = min(start_lnglat[1], end_lnglat[1])  # min_lat
+    maxy = max(start_lnglat[1], end_lnglat[1])
+    minx = min(start_lnglat[0], end_lnglat[0])  # min_lng
+    maxx = max(start_lnglat[0], end_lnglat[0])
+
+    lnglat_range = {
+        'minx': minx,
+        'maxx': maxx,
+        'miny': miny,
+        'maxy': maxy
+    }
+
+    y_dist = geodesic((miny, minx), (maxy, minx)).m
+    x_dist = geodesic((miny, minx), (miny, maxx)).m
+
+    # 30米一个点
+    y_size = math.floor(y_dist / distance_between_points)
+    x_size = math.floor(x_dist / distance_between_points)
+
+    return x_size, y_size, lnglat_range
+
 
 if __name__ == '__main__':
+    start = (103.98345, 31.26724)
+    end = (103.99971, 31.27608)
+    x_size, y_size, lnglat_range = create_map_params(start, end)
 
-        # note: run this project.
-        start_lnglat = (104.11172, 31.05421)
-        # end_lnglat = (103.96817, 31.26513)
-        end_lnglat = (104.132, 31.06591)
-        path = path_planning_with_plot(start_lnglat, end_lnglat, 0, 0)
-        print(path)
-        print(len(path))
+    paths = [(103.98345, 31.26724), (103.98376882352942, 31.26724), (103.98376882352942, 31.26751625), (103.98408764705883, 31.26751625), (103.98408764705883, 31.267792500000002), (103.98440647058824, 31.267792500000002), (103.98472529411765, 31.267792500000002), (103.98504411764706, 31.267792500000002), (103.98504411764706, 31.26806875), (103.98504411764706, 31.268345), (103.98536294117648, 31.268345), (103.98568176470589, 31.268345), (103.98568176470589, 31.268621250000002), (103.9860005882353, 31.268621250000002)]
+    obs = [(10, 27), (11, 25), (10, 27), (11, 26), (9, 27), (10, 26), (11, 25), (12, 24), (10, 25), (11, 26), (11, 24), (10, 26), (11, 25), (12, 24), (11, 24), (12, 23), (18, 18), (18, 19), (18, 20), (18, 21), (18, 26), (18, 27), (18, 28), (17, 18), (17, 19), (17, 20), (17, 21), (18, 26), (17, 26), (18, 25), (17, 27), (17, 28), (22, 25), (23, 15), (23, 20), (21, 25), (22, 26), (23, 26), (22, 25), (24, 14), (22, 15), (22, 20), (22, 26), (25, 10), (23, 14), (25, 21), (25, 22), (24, 10), (24, 21), (24, 22), (29, 25), (29, 24), (31, 9), (31, 10), (31, 11), (31, 12), (31, 13), (31, 14), (31, 15), (31, 16), (31, 17), (31, 18), (30, 25), (30, 24), (32, 8), (30, 9), (30, 10), (30, 11), (30, 12), (30, 13), (30, 14), (30, 15), (30, 16), (30, 17), (30, 18), (31, 8), (35, 3), (35, 5), (34, 3), (34, 5), (38, 28), (38, 29), (37, 28), (37, 29), (39, 30), (39, 29), (45, 14), (45, 15), (44, 14), (44, 15)]
+
+    x = []
+    y = []
+    for lnglat in paths:
+        x.append(lnglat[0])
+        y.append(lnglat[1])
+
+    plt.plot(x, y, '.', c='red')
+
+    x = [103.98345, 103.99971]
+    y = [31.26724, 31.27608]
+
+    plt.plot(x, y, '.', c='black')
+
+    x = list()
+    y = list()
+
+    for ob in obs:
+        xy = Utils.xy_to_lnglat(ob, lnglat_range, x_size, y_size)
+        x.append(xy[0])
+        y.append(xy[1])
+
+    plt.plot(x, y, '.', c='green')
+
+    plt.show()
+    # # note: run this project.
+    # # ['(104.11172, 31.05421)', '(104.132, 31.06591)']
+    # input_data = ['(103.98345,31.26724)', '(103.99971,31.27608)']
+    # start_lnglat, end_lnglat = assemble_input_data(input_data)
+    # path = path_planning_with_plot(start_lnglat, end_lnglat, 0, 0)
+    # print(path)
+    # print(len(path))
 
     # input_data = list()
     # for i in range(1, len(sys.argv)):

@@ -5,14 +5,15 @@ from math import radians, cos, sin, asin, sqrt
 import pandas as pd
 import os
 import geopandas as gpd
+from geopy.distance import geodesic
 
-
+from read_data.Path_planning import get_lnglat_range
 # lng经度，lat纬度
 from matplotlib import pyplot as plt
 from shapely.geometry import Point
 
 import Utils
-
+from ConstantProperties import distance_between_points
 
 def geodistance(lng1, lat1, lng2, lat2):
     lng1, lat1, lng2, lat2 = map(radians, [float(lng1), float(lat1), float(lng2), float(lat2)])  # 经纬度转换成弧度
@@ -36,12 +37,13 @@ def read_map_info():
 
 def read_map_info_from_dem(start_lnglat, end_lnglat):
     filenames = get_shp_filenames()
-
     colors = Utils.get_colors()
 
-    min_lng, max_lng, min_lat, max_lat = adjustment_range(start_lnglat, end_lnglat)
+    min_lat, max_lat, min_lng, max_lng = get_lnglat_range(start_lnglat, end_lnglat)
 
-    all_geo_df = pd.DataFrame()
+    all_geo_df = gpd.GeoDataFrame()
+    list_obs = list()
+    list_road = list()
 
     start_geo = gpd.GeoDataFrame([['start', 1, Point(start_lnglat[0], start_lnglat[1])]],
                                  columns=['Name', 'ID', 'geometry'])
@@ -54,10 +56,67 @@ def read_map_info_from_dem(start_lnglat, end_lnglat):
         geo_df = gpd.read_file(filenames[i], encoding='GBK', bbox=(min_lng, min_lat, max_lng, max_lat))
         if len(geo_df) > 0:
             ax = geo_df.plot(ax=ax, color=colors[i])
-
             all_geo_df = all_geo_df.append(geo_df, ignore_index=True)
 
     plt.show()
+    X, Y = get_x_y_size(all_geo_df)
+
+    minx, maxx, miny, maxy = get_rang_val_from_geo_df(all_geo_df)
+
+    lnglat_range = {
+        'minx': minx,
+        'maxx': maxx,
+        'miny': miny,
+        'maxy': maxy
+    }
+
+    return X, Y, all_geo_df, list_obs, list_road, lnglat_range
+
+
+def create_map_params(start_lnglat, end_lnglat):
+    miny = min(start_lnglat[1], end_lnglat[1])  # min_lat
+    maxy = max(start_lnglat[1], end_lnglat[1])
+    minx = min(start_lnglat[0], end_lnglat[0])  # min_lng
+    maxx = max(start_lnglat[0], end_lnglat[0])
+
+    lnglat_range = {
+        'minx': minx,
+        'maxx': maxx,
+        'miny': miny,
+        'maxy': maxy
+    }
+
+    y_dist = geodesic((miny, minx), (maxy, minx)).m
+    x_dist = geodesic((miny, minx), (miny, maxx)).m
+
+    # 30米一个点
+    y_size = math.floor(y_dist / distance_between_points)
+    x_size = math.floor(x_dist / distance_between_points)
+
+    return x_size, y_size, lnglat_range
+
+
+def get_x_y_size(geo_df):
+
+    minx, maxx, miny, maxy = get_rang_val_from_geo_df(geo_df)
+
+    y_dist = geodesic((miny, minx), (maxy, minx)).m
+    x_dist = geodesic((miny, minx), (miny, maxx)).m
+
+    # 30米一个点
+    y_size = math.floor(y_dist / distance_between_points)
+    x_size = math.floor(x_dist / distance_between_points)
+
+    return x_size, y_size
+
+
+# 之前min_lat, max_lat, min_lng, max_lng是因为调用了GeoPandas的bbox属性，会引入相关的路段，导致上述值出现一些偏差，在测试阶段都会有所偏大。
+def get_rang_val_from_geo_df(geo_df):
+    miny = min(geo_df.bounds['miny'])  # min_lat
+    maxy = max(geo_df.bounds['maxy'])
+    minx = min(geo_df.bounds['minx'])  # min_lng
+    maxx = max(geo_df.bounds['maxx'])
+    return minx, maxx, miny, maxy
 
 
 def get_filename_from_input_data(start_lnglat, end_lnglat):
@@ -88,12 +147,6 @@ def get_filename_from_input_data(start_lnglat, end_lnglat):
 
 
 def get_shp_filenames(base_path=r'C:\D-drive-37093\research\路径规划\China_Roads_All_WGS84_2016'):
-    # file_paths = list()
-
-    # for root, dirs, files in os.walk(base_path):
-    #     for file in files:
-    #         if file.endswith('.shp'):
-    #             file_paths.append(os.path.join(root, file))
     # file_paths = ['九级路_线.shp', '乡镇村道_polyline.shp', '公园绿地_面.shp', '其他路_polyline.shp', '县中心_点.shp',
     #               '县界_面.shp', '县道_polyline.shp', '国界_面.shp', '国道_线.shp', '市中心_点.shp', '市届_面.shp',
     #               '水系_面.shp', '省会_点.shp', '省界_面.shp', '省道_线.shp', '行人道路_线.shp', '轮渡_polyline.shp',
@@ -104,24 +157,6 @@ def get_shp_filenames(base_path=r'C:\D-drive-37093\research\路径规划\China_R
     file_paths = [os.path.join(base_path, file_path) for file_path in file_paths]
 
     return file_paths
-
-
-def adjustment_range(start_lnglat, end_lnglat):
-
-    min_lng = min(start_lnglat[0], end_lnglat[0])
-    max_lng = max(start_lnglat[0], end_lnglat[0])
-    min_lat = min(start_lnglat[1], end_lnglat[1])
-    max_lat = max(start_lnglat[1], end_lnglat[1])
-
-    range_value = max(max_lat - min_lat, max_lng - max_lng) / 10
-    print(range_value)
-
-    min_lng -= range_value
-    max_lng += range_value
-    min_lat -= range_value
-    max_lat += range_value
-
-    return min_lng, max_lng, min_lat, max_lat
 
 
 # 将position (x,y)如(0,1)转为经纬度表的序号  X=len_lng,Y=len_lat
@@ -179,7 +214,7 @@ def back_up():
 
 
 if __name__ == '__main__':
-    start_lnglat = (104.09256,31.0331)
-    end_lnglat = (104.13488,31.06554)
+    start_lnglat = (103.98345, 31.26724)
+    end_lnglat = (103.99971, 31.27608)
     read_map_info_from_dem(start_lnglat, end_lnglat)
 
