@@ -1,13 +1,12 @@
 import math
 
-import numpy as np
 from math import radians, cos, sin, asin, sqrt
 import pandas as pd
 import os
 import geopandas as gpd
 from geopy.distance import geodesic
 
-from read_data.Path_planning import get_lnglat_range
+from Path_planning import get_lnglat_range
 # lng经度，lat纬度
 from matplotlib import pyplot as plt
 from shapely.geometry import Point
