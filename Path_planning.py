@@ -12,6 +12,7 @@ import numpy as np
 import sys
 
 import Utils
+from MapProcess import *
 
 
 """
@@ -90,13 +91,13 @@ def path_planning_with_plot(start_lnglat, end_lnglat, obstacles, enemies, dir=r'
     end_geo = gpd.GeoDataFrame([['end', 2, Point(end_lnglat[0], end_lnglat[1])]],
                                columns=['Name', 'ID', 'geometry'])
     ax = start_geo.plot(color='red')
-    ax = end_geo.plot(ax=ax, color='black')
+    ax = end_geo.plot(ax=ax, color='red')
 
     for i in range(len(filenames)):
         geo_df = gpd.read_file(os.path.join(dir, filenames[i]), encoding='GBK',
                                bbox=(lng_start, lat_start, lng_end, lat_end))
         if len(geo_df) > 0:
-            ax = geo_df.plot(ax=ax, color=colors[i])
+            ax = geo_df.plot(ax=ax, color='orange')
 
             all_part_df = all_part_df.append(geo_df, ignore_index=True)
 
@@ -127,7 +128,6 @@ def path_planning_with_plot(start_lnglat, end_lnglat, obstacles, enemies, dir=r'
 
 
 def assemble_input_data(input_data):
-
     temp_start_lnglat = input_data[0].replace("(", "").replace(")", "").strip().split(',')
     temp_end_lnglat = input_data[1].replace("(", "").replace(")", "").strip().split(',')
 
@@ -347,75 +347,14 @@ def last_test():
     plt.plot(x, y, 'o')
     plt.show()
 
-distance_between_points = 30
-
-def create_map_params(start_lnglat, end_lnglat):
-    miny = min(start_lnglat[1], end_lnglat[1])  # min_lat
-    maxy = max(start_lnglat[1], end_lnglat[1])
-    minx = min(start_lnglat[0], end_lnglat[0])  # min_lng
-    maxx = max(start_lnglat[0], end_lnglat[0])
-
-    lnglat_range = {
-        'minx': minx,
-        'maxx': maxx,
-        'miny': miny,
-        'maxy': maxy
-    }
-
-    y_dist = geodesic((miny, minx), (maxy, minx)).m
-    x_dist = geodesic((miny, minx), (miny, maxx)).m
-
-    # 30米一个点
-    y_size = math.floor(y_dist / distance_between_points)
-    x_size = math.floor(x_dist / distance_between_points)
-
-    return x_size, y_size, lnglat_range
-
 
 if __name__ == '__main__':
-    start = (103.98345, 31.26724)
-    end = (103.99971, 31.27608)
-    x_size, y_size, lnglat_range = create_map_params(start, end)
+    # note: run this project.
+    # ['(104.11172, 31.05421)', '(104.132, 31.06591)']
+    input_data = list()
+    for i in range(1, len(sys.argv)):
+        input_data.append(sys.argv[i])
 
-    paths = [(103.98345, 31.26724), (103.98376882352942, 31.26724), (103.98376882352942, 31.26751625), (103.98408764705883, 31.26751625), (103.98408764705883, 31.267792500000002), (103.98440647058824, 31.267792500000002), (103.98472529411765, 31.267792500000002), (103.98504411764706, 31.267792500000002), (103.98504411764706, 31.26806875), (103.98504411764706, 31.268345), (103.98536294117648, 31.268345), (103.98568176470589, 31.268345), (103.98568176470589, 31.268621250000002), (103.9860005882353, 31.268621250000002)]
-    obs = [(10, 27), (11, 25), (10, 27), (11, 26), (9, 27), (10, 26), (11, 25), (12, 24), (10, 25), (11, 26), (11, 24), (10, 26), (11, 25), (12, 24), (11, 24), (12, 23), (18, 18), (18, 19), (18, 20), (18, 21), (18, 26), (18, 27), (18, 28), (17, 18), (17, 19), (17, 20), (17, 21), (18, 26), (17, 26), (18, 25), (17, 27), (17, 28), (22, 25), (23, 15), (23, 20), (21, 25), (22, 26), (23, 26), (22, 25), (24, 14), (22, 15), (22, 20), (22, 26), (25, 10), (23, 14), (25, 21), (25, 22), (24, 10), (24, 21), (24, 22), (29, 25), (29, 24), (31, 9), (31, 10), (31, 11), (31, 12), (31, 13), (31, 14), (31, 15), (31, 16), (31, 17), (31, 18), (30, 25), (30, 24), (32, 8), (30, 9), (30, 10), (30, 11), (30, 12), (30, 13), (30, 14), (30, 15), (30, 16), (30, 17), (30, 18), (31, 8), (35, 3), (35, 5), (34, 3), (34, 5), (38, 28), (38, 29), (37, 28), (37, 29), (39, 30), (39, 29), (45, 14), (45, 15), (44, 14), (44, 15)]
-
-    x = []
-    y = []
-    for lnglat in paths:
-        x.append(lnglat[0])
-        y.append(lnglat[1])
-
-    plt.plot(x, y, '.', c='red')
-
-    x = [103.98345, 103.99971]
-    y = [31.26724, 31.27608]
-
-    plt.plot(x, y, '.', c='black')
-
-    x = list()
-    y = list()
-
-    for ob in obs:
-        xy = Utils.xy_to_lnglat(ob, lnglat_range, x_size, y_size)
-        x.append(xy[0])
-        y.append(xy[1])
-
-    plt.plot(x, y, '.', c='green')
-
-    plt.show()
-    # # note: run this project.
-    # # ['(104.11172, 31.05421)', '(104.132, 31.06591)']
-    # input_data = ['(103.98345,31.26724)', '(103.99971,31.27608)']
-    # start_lnglat, end_lnglat = assemble_input_data(input_data)
-    # path = path_planning_with_plot(start_lnglat, end_lnglat, 0, 0)
-    # print(path)
-    # print(len(path))
-
-    # input_data = list()
-    # for i in range(1, len(sys.argv)):
-    #     input_data.append(sys.argv[i])
-    #
-    # print(input_data)
-    # input_data = ['(124.456789123, 3.123131231224)', '(123.234234234, 455.1231231)']
-    # print(assemble_input_data(input_data))
+    print(input_data)
+    input_data = ['(124.456789123, 3.123131231224)', '(123.234234234, 455.1231231)']
+    print(assemble_input_data(input_data))

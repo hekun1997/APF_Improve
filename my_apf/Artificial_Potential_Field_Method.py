@@ -20,10 +20,9 @@ def runTheProject(start_lnglat, end_lnglat, dynamic_obs, enemys):
 
     list_obs = []
 
-    # map_list = make_map(X, Y)  # py 图像化
-
-    start_xy = Utils.lnglat_to_xy(start, lnglat_range, x_size, y_size)
-    end_xy = Utils.lnglat_to_xy(end, lnglat_range, x_size, y_size)
+    # 将开始与终点的经纬度转换为坐标
+    start_xy = Utils.lnglat_to_xy(start_lnglat, lnglat_range, x_size, y_size)
+    end_xy = Utils.lnglat_to_xy(end_lnglat, lnglat_range, x_size, y_size)
 
     # check obs and enemy.
     ret_obs, ret_enemies = Utils.check_obs_and_enemy(dynamic_obs, enemys, lnglat_range)
@@ -40,9 +39,8 @@ def runTheProject(start_lnglat, end_lnglat, dynamic_obs, enemys):
 
     # 加入传入的敌军信息
     enemy_XY = Utils.list_lnglat_to_xy(ret_enemies, lnglat_range, x_size, y_size)
-    # enemy_XY = [(7, 7)]  # 测试数据
 
-    visited_list = apf(x_size, y_size, start, end, obs_XY, enemy_XY, lnglat_range)
+    visited_list = apf(x_size, y_size, start_xy, end_xy, obs_XY, enemy_XY, lnglat_range)
 
     lnglat_path = Utils.list_xy_to_lnglat(visited_list, lnglat_range, x_size, y_size)
     # return visited_list
@@ -51,13 +49,7 @@ def runTheProject(start_lnglat, end_lnglat, dynamic_obs, enemys):
     return lnglat_path, obs_XY, lnglat_range, x_size, y_size
 
 
-def apf(x_size, y_size, start_lnglat, end_lnglat, obs_XY, enemy_XY, lnglat_range):
-    # 起始点传入的是经纬度,转为成（1，1）这种形式
-    # startXY = lnglat_to_XY(start, df, Y)
-    # endXY = lnglat_to_XY(end, df, Y)
-    start_xy = Utils.lnglat_to_xy(start_lnglat, lnglat_range, x_size, y_size)
-    end_xy = Utils.lnglat_to_xy(end_lnglat, lnglat_range, x_size, y_size)
-
+def apf(x_size, y_size, start_xy, end_xy, obs_XY, enemy_XY, lnglat_range):
     agent = Agent(Position(start_xy[0], start_xy[1]))
     goal = Goal(Position(end_xy[0], end_xy[1]))
 
@@ -337,28 +329,3 @@ if __name__ == '__main__':
     start, end, dynamic_obs, enemys = sysIN(input_data)
 
     lnglat_path, obs_xy, lnglat_range, x_size, y_size = runTheProject(start, end, dynamic_obs, enemys)
-
-    x = []
-    y = []
-    for lnglat in lnglat_path:
-        x.append(lnglat[0])
-        y.append(lnglat[1])
-    plt.plot(x, y, '.', c='green')
-
-    x = [103.98345, 103.99971]
-    y = [31.26724, 31.27608]
-    plt.plot(x, y, '.', c='red')
-
-    x = list()
-    y = list()
-    for ob in obs_xy:
-        xy = Utils.xy_to_lnglat(ob, lnglat_range, x_size, y_size)
-        x.append(xy[0])
-        y.append(xy[1])
-    plt.plot(x, y, '.', c='black')
-
-    plt.show()
-
-    print('----')
-    print(obs_xy)
-    print(Utils.list_lnglat_to_xy(lnglat_path, lnglat_range, x_size, y_size))

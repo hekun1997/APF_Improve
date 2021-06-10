@@ -6,13 +6,14 @@ import os
 import geopandas as gpd
 from geopy.distance import geodesic
 
-from Path_planning import get_lnglat_range
+import Path_planning as pp
 # lng经度，lat纬度
 from matplotlib import pyplot as plt
 from shapely.geometry import Point
 
 import Utils
 from ConstantProperties import distance_between_points
+
 
 def geodistance(lng1, lat1, lng2, lat2):
     lng1, lat1, lng2, lat2 = map(radians, [float(lng1), float(lat1), float(lng2), float(lat2)])  # 经纬度转换成弧度
@@ -38,7 +39,7 @@ def read_map_info_from_dem(start_lnglat, end_lnglat):
     filenames = get_shp_filenames()
     colors = Utils.get_colors()
 
-    min_lat, max_lat, min_lng, max_lng = get_lnglat_range(start_lnglat, end_lnglat)
+    min_lat, max_lat, min_lng, max_lng = pp.get_lnglat_range(start_lnglat, end_lnglat)
 
     all_geo_df = gpd.GeoDataFrame()
     list_obs = list()

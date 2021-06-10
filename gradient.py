@@ -101,25 +101,26 @@ def dropout_gradient(curr_index, possible_moves_list, Y, df, locaitons):
     return locaitons
 
 
-len_lng, len_lat, df, list_obs, list_road = read_map_info()
-X = len_lng
-Y = len_lat
+# 下面这个函数要么放在最后，要么放在函数结构体里面，不然会报错。
+def original_create_gradient():
+    len_lng, len_lat, df, list_obs, list_road = read_map_info()
+    X = len_lng
+    Y = len_lat
 
-# locaitons为最后的需要加点的坐标
-locaitons = []
-for index in range(0, len(df)-1):
-    possible_moves_list = getNext(index, X, Y)
-    locaitons = dropout_gradient(index, possible_moves_list, Y, df, locaitons)
+    # locaitons为最后的需要加点的坐标
+    locaitons = []
+    for index in range(0, len(df)-1):
+        possible_moves_list = getNext(index, X, Y)
+        locaitons = dropout_gradient(index, possible_moves_list, Y, df, locaitons)
 
-df = pd.DataFrame(locaitons)
+    df = pd.DataFrame(locaitons)
 
-df.columns = ['x', 'y']
-# x按照升序排列，y按照降序排列
-df.sort_values(["x", "y"], ascending=[True, False], inplace=True)
+    df.columns = ['x', 'y']
+    # x按照升序排列，y按照降序排列
+    df.sort_values(["x", "y"], ascending=[True, False], inplace=True)
 
-df.to_csv(r'C:\D-drive-37093\PycharmWorkSpace\apf_enemy\gradient.csv', index=False)
-
-# 数据量太大，如果全放在obstacles中，需要运行很久
+    df.to_csv(r'C:\D-drive-37093\PycharmWorkSpace\apf_enemy\gradient.csv', index=False)
+    # 数据量太大，如果全放在obstacles中，需要运行很久
 
 
 def get_surround_points(x, y, x_size, y_size):

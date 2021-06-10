@@ -1,5 +1,6 @@
 import math
 import gdal
+from matplotlib import pyplot as plt
 
 import gradient
 
@@ -187,6 +188,47 @@ def check_obs_and_enemy(dynamic_obs, enemies, lnglat_range):
     return ret_obs, ret_enemies
 
 
-if __name__ == '__main__':
-    # h = get_elevation((102.99986111111112, 32.00013888888889), path)
-    lnglat = (102.99986111111102, 32.00013888888889)
+def draw_lnglat_path(lnglat_path, start, end, dynamic_obs, lnglat_range, x_size, y_size):
+    x = [start[0], end[0]]
+    y = [start[1], end[1]]
+    plt.plot(x, y, '.', c='red')
+
+    x = list()
+    y = list()
+    for lnglat in lnglat_path:
+        x.append(lnglat[0])
+        y.append(lnglat[1])
+    plt.plot(x, y, '.', c='green')
+
+    x = list()
+    y = list()
+    for ob in dynamic_obs:
+        xy = xy_to_lnglat(ob, lnglat_range, x_size, y_size)
+        x.append(xy[0])
+        y.append(xy[1])
+    plt.plot(x, y, '.', c='black')
+
+    plt.show()
+    print(lnglat_path)
+
+
+def draw_xy_path(xy_path, start, end, obs):
+    x = [start[0], end[0]]
+    y = [start[1], end[1]]
+    plt.plot(x, y, '.', c='red')
+
+    x = list()
+    y = list()
+    for lnglat in xy_path:
+        x.append(lnglat[0])
+        y.append(lnglat[1])
+    plt.plot(x, y, '.', c='green')
+
+    x = list()
+    y = list()
+    for ob in obs:
+        x.append(ob[0])
+        y.append(ob[1])
+    plt.plot(x, y, '.', c='black')
+
+    plt.show()
