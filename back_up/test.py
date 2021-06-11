@@ -1,8 +1,8 @@
 import math
 import sys
 
-import gdal
-import ogr
+from osgeo import gdal
+# import ogr
 import matplotlib.pyplot as plt
 from shapely import geometry
 import geopandas as gpd
@@ -11,33 +11,33 @@ import numpy as np
 from Path_planning import assemble_graph_data, create_graph, get_shortest_path
 
 
-def read_shp():
-    driver = ogr.GetDriverByName('ESRI Shapefile')  # 载入驱动
-    filename = r'C:\D-drive-37093\research\路径规划\China_Roads_All_WGS84_2016\县道_polyline.shp'  # 不止需要.shp文件，还需要附带的其它信息文件
-    dataSource = driver.Open(filename, 0)  # 第二个参数为0是只读，为1是可写
-    if dataSource is None:  # 判断是否成功打开
-        print('could not open')
-        sys.exit(1)
-    else:
-        print('done!')
-
-    layer = dataSource.GetLayer(0)  # 读取第一个图层
-
-    '''读出上下左右边界，坐标系为地理坐标系'''
-    extent = layer.GetExtent()
-    print('extent:', extent)
-    print('ul:', extent[0], extent[1])  # 左右边界
-    print('lr:', extent[2], extent[3])  # 下上边界
-
-    n = layer.GetFeatureCount()  # 该图层中有多少个要素
-    print('feature count:', n)
-
-    for i in range(n):
-        feat = layer.GetFeature(i)  # 提取数据层中的第一个要素
-
-        geom = feat.GetGeometryRef()  # 提取该要素的轮廓坐标
-        # LINESTRING (116.74496484 29.52956304,116.74469916 29.53050903,116.74446192 29.53263303,116.74447488 29.532942,116.74454184 29.53319103,116.744715 29.53357299,116.74496088 29.53394802)
-        print(geom)
+# def read_shp():
+#     driver = ogr.GetDriverByName('ESRI Shapefile')  # 载入驱动
+#     filename = r'C:\D-drive-37093\research\路径规划\China_Roads_All_WGS84_2016\县道_polyline.shp'  # 不止需要.shp文件，还需要附带的其它信息文件
+#     dataSource = driver.Open(filename, 0)  # 第二个参数为0是只读，为1是可写
+#     if dataSource is None:  # 判断是否成功打开
+#         print('could not open')
+#         sys.exit(1)
+#     else:
+#         print('done!')
+#
+#     layer = dataSource.GetLayer(0)  # 读取第一个图层
+#
+#     '''读出上下左右边界，坐标系为地理坐标系'''
+#     extent = layer.GetExtent()
+#     print('extent:', extent)
+#     print('ul:', extent[0], extent[1])  # 左右边界
+#     print('lr:', extent[2], extent[3])  # 下上边界
+#
+#     n = layer.GetFeatureCount()  # 该图层中有多少个要素
+#     print('feature count:', n)
+#
+#     for i in range(n):
+#         feat = layer.GetFeature(i)  # 提取数据层中的第一个要素
+#
+#         geom = feat.GetGeometryRef()  # 提取该要素的轮廓坐标
+#         # LINESTRING (116.74496484 29.52956304,116.74469916 29.53050903,116.74446192 29.53263303,116.74447488 29.532942,116.74454184 29.53319103,116.744715 29.53357299,116.74496088 29.53394802)
+#         print(geom)
 
 
 def read_csv():

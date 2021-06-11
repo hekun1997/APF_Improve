@@ -1,26 +1,17 @@
-import math
-
 import networkx as nx
-import geopandas as gpd
-import pandas as pd
-from geopy.distance import geodesic
-import os
-import matplotlib.pyplot as plt
-from shapely.geometry import Point
 from scipy.spatial import cKDTree
 import numpy as np
 import sys
 
-import Utils
 from MapProcess import *
-
+import Artificial_Potential_Field_Method as apf
 
 """
     根据给出的路网进行路径规划。
 """
 
-
-def path_planning(start_lnglat, end_lnglat, encoding='GBK', dir=r'C:\D-drive-37093\research\路径规划\China_Roads_All_WGS84_2016'):
+def path_planning(start_lnglat, end_lnglat, encoding='GBK',
+                  dir=r'C:\D-drive-37093\research\路径规划\China_Roads_All_WGS84_2016'):
     """
     :return:
     """
@@ -73,8 +64,8 @@ def path_planning(start_lnglat, end_lnglat, encoding='GBK', dir=r'C:\D-drive-370
     return path
 
 
-def path_planning_with_plot(start_lnglat, end_lnglat, obstacles, enemies, dir=r'C:\D-drive-37093\research\路径规划\China_Roads_All_WGS84_2016'):
-
+def path_planning_with_plot(start_lnglat, end_lnglat, obstacles, enemies,
+                            dir=r'C:\D-drive-37093\research\路径规划\China_Roads_All_WGS84_2016'):
     filenames = ['县道_polyline.shp', '乡镇村道_polyline.shp', '行人道路_线.shp', '高速公路_线.shp', '国道_线.shp',
                  '其他路_polyline.shp', '九级路_线.shp', '省道_线.shp', '铁路_线.shp', '九级路_线.shp']
     colors = ['red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'purple',
@@ -123,7 +114,7 @@ def path_planning_with_plot(start_lnglat, end_lnglat, obstacles, enemies, dir=r'
     plt.show()
 
     # if start point, end point not in path, add that to path.
-    judgement_path(path, start_lnglat, end_lnglat)
+    # judgement_path(path, start_lnglat, end_lnglat)
     return path
 
 
@@ -199,11 +190,12 @@ def get_lnglat_range(start_lnglat, end_lnglat):
 
     return min_lat, max_lat, min_lng, max_lng
 
+
 def get_nearest_point(geo_dataframe, start_lnglat, end_lnglat):
     start_gpd = gpd.GeoDataFrame([['start', 0, Point(start_lnglat[0], start_lnglat[1])]]
                                  , columns=['Name', 'ID', 'geometry'])
     end_gpd = gpd.GeoDataFrame([['end', 1, Point(end_lnglat[0], end_lnglat[1])]],
-                                 columns=['Name', 'ID', 'geometry'])
+                               columns=['Name', 'ID', 'geometry'])
 
     start_node = ckd_nearest(start_gpd, geo_dataframe)
     end_node = ckd_nearest(end_gpd, geo_dataframe)
@@ -251,7 +243,6 @@ def ckd_nearest(gdfA, gdfB):
 
 
 def judgement_distance(start_node, end_node, temp_start_node, temp_end_node):
-
     if start_node is None:
         start_node = temp_start_node
     elif start_node['dist'] > temp_start_node['dist']:
@@ -349,12 +340,20 @@ def last_test():
 
 
 if __name__ == '__main__':
-    # note: run this project.
-    # ['(104.11172, 31.05421)', '(104.132, 31.06591)']
     input_data = list()
     for i in range(1, len(sys.argv)):
         input_data.append(sys.argv[i])
 
-    print(input_data)
-    input_data = ['(124.456789123, 3.123131231224)', '(123.234234234, 455.1231231)']
-    print(assemble_input_data(input_data))
+    start, end, dynamic_obs, enemies = Utils.assemble_input_data(input_data)
+    path = list()
+
+    try:
+        road_path = path_planning_with_plot(start, end, dynamic_obs, enemies)
+        path.extend(road_path)  # 此时路径中还没有起点终点
+        judgement_path(path, start, end)
+    except:
+        succeed = False
+        none_road_path = apf.runTheProject(start, end, dynamic_obs, enemies)
+        path.extend(none_road_path)  # 路径中已有起点终点
+
+    print(path)

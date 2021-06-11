@@ -3,7 +3,7 @@ import numpy as np
 
 import Utils
 from Agent_Obstacle_Goal import *
-from MapProcess import position_to_LngLatNum
+import MapProcess
 import pandas as pd
 
 
@@ -224,7 +224,7 @@ def make_map(X,Y):
 def position_to_lnglat(visited_list, Y, df):
     position = []
     for item in visited_list:
-        num = position_to_LngLatNum(item,Y)
+        num = MapProcess.position_to_LngLatNum(item,Y)
         position.append((df['lng'][num], df['lat'][num]))
     return position
 

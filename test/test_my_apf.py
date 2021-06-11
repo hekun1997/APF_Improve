@@ -3,7 +3,7 @@ import unittest
 from matplotlib import pyplot as plt
 
 import Utils
-from my_apf import Artificial_Potential_Field_Method as apf
+import Artificial_Potential_Field_Method as apf
 
 
 class apf_test(unittest.TestCase):
@@ -36,9 +36,9 @@ class apf_test(unittest.TestCase):
 
         plt.show()
 
-        print('----')
-        print(obs_xy)
-        print(Utils.list_lnglat_to_xy(lnglat_path, lnglat_range, x_size, y_size))
+        # print('----')
+        # print(obs_xy)
+        # print(Utils.list_lnglat_to_xy(lnglat_path, lnglat_range, x_size, y_size))
 
     def test_local_minimum(self):
         start, end = (0, 0), (40, 40)

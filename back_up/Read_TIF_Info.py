@@ -1,39 +1,5 @@
 from osgeo import gdal
-from gdalconst import *
 import sys
-
-def read_elevation_info(image_path):
-    """
-    desc
-    :param image_path: the image path ready to read.
-    :return:
-    """
-    data = []
-    dataset = gdal.Open(image_path, GA_ReadOnly)
-    if dataset is None:
-        print("Unable to open image file.")
-        return data
-    else:
-        print("Open image file success.")
-
-        geoTransform = dataset.GetGeoTransform()
-        print(geoTransform)
-        im_proj = dataset.GetProjection()  # 获取投影信息
-        print(im_proj)
-        bands_num = dataset.RasterCount
-        print("Image height:" + dataset.RasterYSize.__str__() + " Image width:" + dataset.RasterXSize.__str__())
-        print(bands_num.__str__() + " bands in total.")
-        for i in range(bands_num):
-            # 获取影像的第i+1个波段
-            band_i = dataset.GetRasterBand(i + 1)
-            # 读取第i+1个波段数据
-            band_data = band_i.ReadAsArray(0, 0, band_i.XSize, band_i.YSize)
-            print('band data. ', band_data)
-            data.append(band_data)
-            print("band " + (i + 1).__str__() + " read success.")
-        print('return data. ', data)
-        # 返回的data就是高程信息，海拔
-        return data
 
 
 def read_all_latlng(file_path):

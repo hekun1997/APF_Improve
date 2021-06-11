@@ -1,6 +1,7 @@
 import math
-import gdal
+# import gdal
 from matplotlib import pyplot as plt
+from osgeo import gdal
 
 import gradient
 
@@ -232,3 +233,23 @@ def draw_xy_path(xy_path, start, end, obs):
     plt.plot(x, y, '.', c='black')
 
     plt.show()
+
+
+def assemble_input_data(input_data):
+    start = eval(input_data[0])
+    end = eval(input_data[1])
+
+    dynamic_obs = []
+    for item in eval(input_data[2]):
+        dynamic_obs.append(item)
+
+    enemies = []
+    for item in eval(input_data[3]):
+        enemies.append(item)
+
+    return start, end, dynamic_obs, enemies
+
+
+if __name__ == '__main__':
+    dataset = gdal.Open(r'C:\D-drive-37093\PycharmWorkSpace\apf_enemy\Data\ASTGTM2_N26E100\ASTGTM2_N26E100_dem.tif')
+    print(dataset.GetGeoTransform())

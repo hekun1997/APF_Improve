@@ -1,10 +1,8 @@
 import sys
 
-import matplotlib.pyplot as plt
 
-import Utils
 from APF import *
-from MapProcess import *
+import MapProcess
 from Position import *
 from Agent_Obstacle_Goal import *
 from Run_DE import run_de
@@ -12,7 +10,7 @@ from DE_apf import de_apf
 
 
 def runTheProject(start_lnglat, end_lnglat, dynamic_obs, enemys):
-    len_lng, len_lat, lnglat_range = create_map_params(start_lnglat, end_lnglat)  # geo_df, list_obs, list_road,
+    len_lng, len_lat, lnglat_range = MapProcess.create_map_params(start_lnglat, end_lnglat)  # geo_df, list_obs, list_road,
 
     # 最后的输出需要根据这个转换
     x_size = len_lng  # x 轴多少个点，30米一个点
@@ -44,7 +42,7 @@ def runTheProject(start_lnglat, end_lnglat, dynamic_obs, enemys):
 
     lnglat_path = Utils.list_xy_to_lnglat(visited_list, lnglat_range, x_size, y_size)
     # return visited_list
-    print(lnglat_path)
+    # print(lnglat_path)
 
     return lnglat_path, obs_XY, lnglat_range, x_size, y_size
 
@@ -318,14 +316,17 @@ def apf(x_size, y_size, start_xy, end_xy, obs_XY, enemy_XY, lnglat_range):
 
 
 if __name__ == '__main__':
-    input_data = ['(103.98345, 31.26724)', '(103.99971, 31.27608)',
-                  '[(103.90542,31.32615322),(103.9548644, 31.29281989)]', '[(103.90542, 31.33254211)]']
+    # input_data = ['(103.98345, 31.26724)', '(103.99971, 31.27608)',
+    #               '[(103.90542,31.32615322),(103.9548644, 31.29281989)]', '[(103.90542, 31.33254211)]']
 
     # 其他模块调用路径规划算法,需要下列代码
     # input_data = []
     # for i in range(1, len(sys.argv)):
     #     input_data.append((sys.argv[i]))
+    input_data = ['(104.10426,31.18817)', '(104.14597,31.23647)', '[(123,123)]', '[(12312,123)]']
 
     start, end, dynamic_obs, enemys = sysIN(input_data)
 
     lnglat_path, obs_xy, lnglat_range, x_size, y_size = runTheProject(start, end, dynamic_obs, enemys)
+
+    print(lnglat_path)
