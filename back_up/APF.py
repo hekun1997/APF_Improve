@@ -5,6 +5,9 @@ from DE_apf import de_apf
 
 
 def apf(X, Y, start, end, obs_XY, enemy_XY, df):
+    # fig = plt.figure()
+    # ax = fig.add_subplot(111)
+
     # 起始点传入的是经纬度,转为成（1，1）这种形式
     startXY = lnglat_to_XY(start, df, Y)
     endXY = lnglat_to_XY(end, df, Y)
@@ -21,11 +24,17 @@ def apf(X, Y, start, end, obs_XY, enemy_XY, df):
     for item in enemy_XY:
         obstacles.append(Enemy(Position(item[0]*6, item[1]*6)))
 
+    # agent.draw()
+    #
+    # goal.draw()
+    # for i in range(len(obstacles)):
+    #     obstacles[i].draw(ax)
+
     visited_list = []
     visited_list.append(PtoXY(agent.position))
     step_count = 0
-
     while Position.calculate_distance(agent.position, goal.position) >= 0.5:
+
         # 统计在预测范围内的障碍物
         dists_pred = []
         # 统计在影响范围内的障碍物
@@ -183,6 +192,7 @@ def apf(X, Y, start, end, obs_XY, enemy_XY, df):
                                 break
                     count = 0
                     while count < 4:  # 预测5，但如果存在enemy，只能走距离2，agent步长0.5
+                        # print("2-1")
                         agent.position.x = agent.position.x + agent.move_radius * math.cos(theta)
                         agent.position.y = agent.position.y + agent.move_radius * math.sin(theta)
                         count += 1
@@ -191,6 +201,7 @@ def apf(X, Y, start, end, obs_XY, enemy_XY, df):
                         agent.draw()
                 else:
                     temp = Goal(Position(agent.position.x, agent.position.y))
+                    # print(theta)
                     while UnSafe == 1:
                         theta += 0.22
                         temp.position.x = agent.position.x + agent.move_radius * math.cos(theta)
@@ -213,6 +224,10 @@ def apf(X, Y, start, end, obs_XY, enemy_XY, df):
         # 在障碍物影响范围内,且前进路线不安全
         else:
             # print("在障碍物影响范围内,且前进路线不安全", step_count)
+            # ax.axis('equal')
+            # plt.rcParams['font.sans-serif'] = ['SimHei']
+            # plt.rcParams['axes.unicode_minus'] = False
+            # plt.show()
             F_rep_x = 0
             F_rep_y = 0
             for obstacle in dists_pred:
@@ -242,6 +257,12 @@ def apf(X, Y, start, end, obs_XY, enemy_XY, df):
             is_trap, spot = out_to_trap(agent, goal, visited_list, obstacles)
         # TODO 陷入最小值区域（注意visited_list的值为3/10有错误）
         if is_trap == 1:
+            # spot.draw_spot()
+            # ax.axis('equal')
+            # plt.rcParams['font.sans-serif'] = ['SimHei']
+            # plt.rcParams['axes.unicode_minus'] = False
+            # plt.show()
+            # print("trap+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
             while Position.calculate_distance(agent.position, spot.position) >= 0.5:
                 dists_pred = []
                 for obstacle in obstacles:
@@ -273,7 +294,14 @@ def apf(X, Y, start, end, obs_XY, enemy_XY, df):
                     params = run_de()
                     step_count, visited_list = de_apf(start, end, obs_XY, enemy_XY, params[0], params[1], params[2], params[3])
                     return visited_list_to_res(visited_list)
+            # print("trap+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+    # print("改进APF步数：", step_count)
+    # ax.axis('equal')
+    # plt.rcParams['font.sans-serif'] = ['SimHei']
+    # plt.rcParams['axes.unicode_minus'] = False
+    # plt.show()
 
     # 这里的visited_list还不是整数，需要转换成整数,并去重
     res = visited_list_to_res(visited_list)
     return res
+

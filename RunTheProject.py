@@ -1,5 +1,5 @@
 import sys
-from APF import *
+from back_up.APF import *
 from MapProcess import *
 from Position import sysIN
 
@@ -48,12 +48,13 @@ def runTheProject(start, end, dynamic_obs, enemys):
 
 if __name__ == '__main__':
     # input_data = ['(103.9468089,31.24781989)', '(103.9909756,31.27948656)', '[(103.90542,31.32615322)]', '[(103.90542, 31.33254211)]']
-    # input_data = ['(103.84093,31.33363)', '(103.84818,31.33454)', '[(103.90542,31.32615322),(103.9548644, 31.29281989)]', '[(103.90542, 31.33254211)]']
+    input_data = ['(103.92363,31.26324)', '(103.9959,31.28437)',
+                  '[]', '[]']
 
     # 其他模块调用路径规划算法,需要下列代码
-    input_data = []
-    for i in range(1, len(sys.argv)):
-        input_data.append((sys.argv[i]))
+    # input_data = []
+    # for i in range(1, len(sys.argv)):
+    #     input_data.append((sys.argv[i]))
 
     start, end, dynamic_obs, enemys = sysIN(input_data)
 

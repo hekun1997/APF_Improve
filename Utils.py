@@ -11,9 +11,23 @@ def get_dem_info(path):
     return dataset
 
 
-def get_elevation(lnglat):
-    path = concat_lnglat_path(lnglat[0], lnglat[1])
+# 获取地图障碍物，需要多次调用文件，每一格都需要打开一次，这里一个经纬度只需要打开一次。
+
+def get_dataset_from_cache(ele_dict, concat_lnglat, path):
+    if concat_lnglat in ele_dict:
+        return ele_dict[concat_lnglat]
+
     dataset = get_dem_info(path)
+    ele_dict[concat_lnglat] = dataset
+
+    return dataset
+
+
+def get_elevation(ele_dict, lnglat):
+    concat_lnglat, path = concat_lnglat_path(lnglat[0], lnglat[1])
+    # todo 6.23 优化读取逻辑
+    # dataset = get_dem_info(path)
+    dataset = get_dataset_from_cache(ele_dict, concat_lnglat, path)
     """
     Note:
         Xgeo = gt[0] + Xpixel * gt[1] + Yline * gt[2]
@@ -98,7 +112,7 @@ def concat_lnglat_path(lng, lat, base_path='C:\\D-drive-37093\\PycharmWorkSpace\
 
     path = base_path + '\\' + dir_prefix + lnglat + '\\' + dir_prefix + lnglat + '_dem.tif'
 
-    return path
+    return lnglat, path
 
 
 def get_colors():

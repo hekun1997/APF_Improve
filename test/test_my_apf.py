@@ -9,11 +9,15 @@ import Artificial_Potential_Field_Method as apf
 class apf_test(unittest.TestCase):
 
     def test_apf(self):
-        input_data = ['(103.98345, 31.26724)', '(103.99971, 31.27608)',
-                      '[(103.90542,31.32615322),(103.9548644, 31.29281989)]', '[(103.90542, 31.33254211)]']
+        # input_data = ['(103.92363,31.26324)', '(103.9959,31.28437)',
+        #               '[]', '[]']
+        input_data = ['(103.97703,31.26376)', '(103.982,31.26645)',
+                      '[]', '[]']
         start, end, dynamic_obs, enemys = apf.sysIN(input_data)
 
         lnglat_path, obs_xy, lnglat_range, x_size, y_size = apf.runTheProject(start, end, dynamic_obs, enemys)
+
+        print(lnglat_path)
 
         x = []
         y = []

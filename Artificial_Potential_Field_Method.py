@@ -1,8 +1,6 @@
 import sys
 
-
-from APF import *
-import MapProcess
+from back_up.APF import *
 from Position import *
 from Agent_Obstacle_Goal import *
 from Run_DE import run_de
@@ -23,11 +21,13 @@ def runTheProject(start_lnglat, end_lnglat, dynamic_obs, enemys):
     end_xy = Utils.lnglat_to_xy(end_lnglat, lnglat_range, x_size, y_size)
 
     # check obs and enemy.
+    # if the obs or enemy are out of map, remove that.
     ret_obs, ret_enemies = Utils.check_obs_and_enemy(dynamic_obs, enemys, lnglat_range)
 
     # todo 原始障碍物直接记录lnglat，并且在只查找起点终点之间的高程值
     obs_XY = Utils.list_lnglat_to_xy(list_obs, lnglat_range, x_size, y_size)
 
+    # get the obs that can not through path.
     gradients = Utils.get_gradient(start_lnglat, end_lnglat)
 
     obs_XY.extend(gradients)
@@ -316,14 +316,13 @@ def apf(x_size, y_size, start_xy, end_xy, obs_XY, enemy_XY, lnglat_range):
 
 
 if __name__ == '__main__':
-    # input_data = ['(103.98345, 31.26724)', '(103.99971, 31.27608)',
-    #               '[(103.90542,31.32615322),(103.9548644, 31.29281989)]', '[(103.90542, 31.33254211)]']
+    # input_data = ['(103.92363,31.26324)', '(103.9959,31.28437)',
+    #               '[]', '[]']
 
     # 其他模块调用路径规划算法,需要下列代码
-    # input_data = []
-    # for i in range(1, len(sys.argv)):
-    #     input_data.append((sys.argv[i]))
-    input_data = ['(104.10426,31.18817)', '(104.14597,31.23647)', '[(123,123)]', '[(12312,123)]']
+    input_data = []
+    for i in range(1, len(sys.argv)):
+        input_data.append((sys.argv[i]))
 
     start, end, dynamic_obs, enemys = sysIN(input_data)
 

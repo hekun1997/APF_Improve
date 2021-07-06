@@ -173,26 +173,15 @@ def get_surround_points(x, y, x_size, y_size):
 def create_gradient(start_lnglat, end_lnglat):
     x_size, y_size, lnglat_range = create_map_params(start_lnglat, end_lnglat)
 
+    ele_dict = dict()
     gradients = list()  # 不能通过的点
-
-    # todo 写的太烂了 需要优化
-    # for x in range(0, x_size + 1):
-    #     for y in range(0, y_size + 1):
-    #         surr_points = get_surround_points(x, y, x_size, y_size)
-    #         curr_lnglat = Utils.xy_to_lnglat((x, y), lnglat_range, x_size, y_size)
-    #         curr_h = Utils.get_elevation(curr_lnglat)
-    #         for point in surr_points:
-    #             next_lnglat = Utils.xy_to_lnglat(point, lnglat_range, x_size, y_size)
-    #             next_h = Utils.get_elevation(next_lnglat)
-    #             if calculate_gradient(curr_h, next_h) == 0:
-    #                 old_gradients.append(point
 
     array = np.zeros((x_size + 1, y_size + 1), dtype=float)
 
     for x in range(0, x_size + 1):  # 避免index out bounds 错误
         for y in range(0, y_size + 1):
             curr_lnglat = Utils.xy_to_lnglat((x, y), lnglat_range, x_size, y_size)
-            curr_h = Utils.get_elevation(curr_lnglat)
+            curr_h = Utils.get_elevation(ele_dict, curr_lnglat)
             array[x, y] = curr_h
 
     for x in range(0, x_size + 1):
