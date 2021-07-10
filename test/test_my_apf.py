@@ -11,8 +11,9 @@ class apf_test(unittest.TestCase):
     def test_apf(self):
         # input_data = ['(103.92363,31.26324)', '(103.9959,31.28437)',
         #               '[]', '[]']
-        input_data = ['(103.97703,31.26376)', '(103.982,31.26645)',
-                      '[]', '[]']
+        input_data = ['(104.00419,31.28396)', '(104.02129,31.27942)',
+                      '[(104.01653999999999, 31.280555), (104.01653999999999, 31.280555), (104.01653999999999, 31.280555)]',
+                      '[(104.00577333333332, 31.2833925), (104.00450666666666, 31.28396), (104.02129, 31.27970375)]']
         start, end, dynamic_obs, enemys = apf.sysIN(input_data)
 
         lnglat_path, obs_xy, lnglat_range, x_size, y_size = apf.runTheProject(start, end, dynamic_obs, enemys)
@@ -26,8 +27,8 @@ class apf_test(unittest.TestCase):
             y.append(lnglat[1])
         plt.plot(x, y, '.', c='green')
 
-        x = [103.98345, 103.99971]
-        y = [31.26724, 31.27608]
+        x = [start[0], end[0]]
+        y = [start[1], end[1]]
         plt.plot(x, y, '.', c='red')
 
         x = list()
@@ -37,6 +38,20 @@ class apf_test(unittest.TestCase):
             x.append(xy[0])
             y.append(xy[1])
         plt.plot(x, y, '.', c='black')
+
+        x = list()
+        y = list()
+        for ob in dynamic_obs:
+            x.append(ob[0])
+            y.append(ob[1])
+        plt.plot(x, y, '.', c='y')
+
+        x = list()
+        y = list()
+        for ob in enemys:
+            x.append(ob[0])
+            y.append(ob[1])
+        plt.plot(x, y, '.', c='grey')
 
         plt.show()
 

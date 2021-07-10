@@ -27,7 +27,7 @@ def geodistance(lng1, lat1, lng2, lat2):
 # 根据地图信息来获取APF用到的地图信息
 def read_map_info():
     # df = pd.read_csv("F:\\UESTC\\apf_enemy\\map.csv", encoding='gbk')  # 数据为从左上，往下走，在往右走
-    df = pd.read_csv(r'C:\D-drive-37093\PycharmWorkSpace\apf_enemy\map.csv', encoding='gbk')
+    df = pd.read_csv(r'/back_up/map.csv', encoding='gbk')
     lng = len(df['lng'].unique())
     lat = len(df['lat'].unique())
     list_obs = list(df.loc[df['type'] == 1].index)

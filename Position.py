@@ -14,7 +14,7 @@ def PtoXY(P):
 
 def calculate_angle(cosValue, sinValue):
     global theta
-    if sinValue >= 0:  # 角度在0-pi之间
+    if sinValue >= 0 :  # 角度在0-pi之间
         theta = math.acos(cosValue)
     elif sinValue < 0:  # 角度在pi-2pi
         # cosAlpha=-cosValue
