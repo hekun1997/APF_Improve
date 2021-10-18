@@ -134,7 +134,7 @@ class Goal:
 
 class Enemy:
     # 敌军effect_radius为障碍物的影响半径，值为3。 size为实际上的体积3
-    def __init__(self, position, sigma=200, effect_radius=3, size=3):
+    def  __init__(self, position, sigma=200, effect_radius=3, size=3):
         self.position = position
         self.sigma = sigma
         self.effect_radius = effect_radius

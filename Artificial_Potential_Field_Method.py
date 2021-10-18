@@ -7,7 +7,7 @@ from back_up.Run_DE import run_de
 from DE_apf import de_apf
 
 
-def runTheProject(start_lnglat, end_lnglat, dynamic_obs, enemys):
+def runTheProject(start_lnglat, end_lnglat, dynamic_obs, enemys, use_gdal=False):
     len_lng, len_lat, lnglat_range = MapProcess.create_map_params(start_lnglat, end_lnglat)  # geo_df, list_obs, list_road,
 
     # 最后的输出需要根据这个转换
@@ -28,7 +28,9 @@ def runTheProject(start_lnglat, end_lnglat, dynamic_obs, enemys):
     obs_XY = Utils.list_lnglat_to_xy(list_obs, lnglat_range, x_size, y_size)
 
     # get the obs that can not through path.
-    gradients = Utils.get_gradient(start_lnglat, end_lnglat)
+    gradients = []
+    if use_gdal:
+        gradients = Utils.get_gradient(start_lnglat, end_lnglat)
 
     obs_XY.extend(gradients)
 

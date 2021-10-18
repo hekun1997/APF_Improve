@@ -96,7 +96,7 @@ def adjustment_lnglat(lng, lat, dataset):
     return (lng, lat)
 
 
-def concat_lnglat_path(lng, lat, base_path='C:\\D-drive-37093\\PycharmWorkSpace\\apf_enemy\\Data', dir_prefix = 'ASTGTM2_'):
+def concat_lnglat_path(lng, lat, base_path=r'D:\PycharmWorkSpace\apf_enemy\Data', dir_prefix = 'ASTGTM2_'):
     lng = math.ceil(lng)
     lat = math.floor(lat)
     lnglat = ''
@@ -265,5 +265,5 @@ def assemble_input_data(input_data):
 
 
 if __name__ == '__main__':
-    dataset = gdal.Open(r'C:\D-drive-37093\PycharmWorkSpace\apf_enemy\Data\ASTGTM2_N26E100\ASTGTM2_N26E100_dem.tif')
+    dataset = gdal.Open(r'Data/ASTGTM2_N26E100/ASTGTM2_N26E100_dem.tif')
     print(dataset.GetGeoTransform())
