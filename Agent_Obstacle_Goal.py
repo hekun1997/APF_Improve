@@ -47,7 +47,7 @@ class Agent:
 
 class Obstacle:
     # 障碍物draw_radius+无人车的draw_radius的和为安全半径,effect_radius为障碍物的影响半径，pred_radius为障碍物的预测半径
-    def __init__(self, position, sigma=200, size=1, effect_radius=3):
+    def __init__(self, position, sigma=200, size=2, effect_radius=3):
         self.position = position
         self.sigma = sigma
         self.size = size

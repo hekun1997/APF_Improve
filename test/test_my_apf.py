@@ -11,25 +11,27 @@ class apf_test(unittest.TestCase):
     def test_apf(self):
         # input_data = ['(103.92363,31.26324)', '(103.9959,31.28437)',
         #               '[]', '[]']
-        input_data = ['(104.00419,31.28396)', '(104.02129,31.27942)', '[]', '[]']
+        input_data = ['(103.90637,31.24629)', '(103.95736,31.28283)', '[]', '[]']
         # '[(104.01653999999999, 31.280555), (104.01653999999999, 31.280555), (104.01653999999999, 31.280555)]',
         #                       '[(104.00577333333332, 31.2833925), (104.00450666666666, 31.28396), (104.02129, 31.27970375)]'
         start, end, dynamic_obs, enemys = apf.sysIN(input_data)
 
-        lnglat_path, obs_xy, lnglat_range, x_size, y_size = apf.runTheProject(start, end, dynamic_obs, enemys)
+        lnglat_path, obs_xy, lnglat_range, x_size, y_size = apf.runTheProject(start, end, dynamic_obs, enemys,
+                                                                              use_gdal=True)
 
         print(lnglat_path)
+
+        plt.ticklabel_format(style="plain", axis="both")
 
         x = []
         y = []
         for lnglat in lnglat_path:
             x.append(lnglat[0])
             y.append(lnglat[1])
-        plt.plot(x, y, '.', c='green')
+        l_path, = plt.plot(x, y, c='gray', linewidth=0.5)
 
-        x = [start[0], end[0]]
-        y = [start[1], end[1]]
-        plt.plot(x, y, '.', c='red')
+        l_start = plt.scatter(x=start[0], y=start[1], marker='.', c='red')
+        l_goal = plt.scatter(x=end[0], y=end[1], marker='p', c='red')
 
         x = list()
         y = list()
@@ -37,21 +39,27 @@ class apf_test(unittest.TestCase):
             xy = Utils.xy_to_lnglat(ob, lnglat_range, x_size, y_size)
             x.append(xy[0])
             y.append(xy[1])
-        plt.plot(x, y, '.', c='black')
+        l_obs, = plt.plot(x, y, '.', c='black')
 
         x = list()
         y = list()
         for ob in dynamic_obs:
             x.append(ob[0])
             y.append(ob[1])
-        plt.plot(x, y, '.', c='y')
+        l_d_obs, = plt.plot(x, y, c='y')
 
         x = list()
         y = list()
         for ob in enemys:
             x.append(ob[0])
             y.append(ob[1])
-        plt.plot(x, y, '.', c='grey')
+        l_e, = plt.plot(x, y, 'x', c='red')
+
+        plt.legend(handles=[l_path, l_start, l_goal, l_obs, l_d_obs, l_e],
+                   labels=['path', 'start', 'goal', 'obstacle', 'dynamic_obs', 'enemys'], loc='best')
+        plt.title("APF Route Plan")
+        plt.xlabel("Longitude")
+        plt.ylabel("Latitude")
 
         plt.show()
 

@@ -18,16 +18,17 @@ def get_dataset_from_cache(ele_dict, concat_lnglat, path):
         return ele_dict[concat_lnglat]
 
     dataset = get_dem_info(path)
-    ele_dict[concat_lnglat] = dataset
+    gtf, elevation_info_array = dataset.GetGeoTransform(), dataset.ReadAsArray().astype(float)
+    ele_dict[concat_lnglat] = [gtf, elevation_info_array]
 
-    return dataset
+    return [gtf, elevation_info_array]
 
 
 def get_elevation(ele_dict, lnglat):
     concat_lnglat, path = concat_lnglat_path(lnglat[0], lnglat[1])
     # todo 6.23 优化读取逻辑
     # dataset = get_dem_info(path)
-    dataset = get_dataset_from_cache(ele_dict, concat_lnglat, path)
+    gtf, elevation_info_array = get_dataset_from_cache(ele_dict, concat_lnglat, path)
     """
     Note:
         Xgeo = gt[0] + Xpixel * gt[1] + Yline * gt[2]
@@ -52,10 +53,10 @@ def get_elevation(ele_dict, lnglat):
     :return:
     """
     # dataset = get_dem_info(path)
-    dem_gcs = dataset
-    elevation_info_array = dem_gcs.ReadAsArray().astype(float)
+    # dem_gcs = dataset
+    # elevation_info_array = dem_gcs.ReadAsArray().astype(float)
 
-    gtf = dataset.GetGeoTransform()
+    # gtf = dataset.GetGeoTransform()
     # print(gtf)
 
     x_geo = lnglat[0]  # longitude
@@ -265,5 +266,17 @@ def assemble_input_data(input_data):
 
 
 if __name__ == '__main__':
-    dataset = gdal.Open(r'Data/ASTGTM2_N26E100/ASTGTM2_N26E100_dem.tif')
-    print(dataset.GetGeoTransform())
+    input_data = ['(103.91496,31.25339)', '(103.95037,31.28386)',
+                  '[]', '[]']
+
+    # 其他模块调用路径规划算法,需要下列代码
+    # input_data = []
+    # for i in range(1, len(sys.argv)):
+    #     input_data.append((sys.argv[i]))
+
+    # start, end, dynamic_obs, enemys = sysIN(input_data)
+    # obstacle = get_gradient(start, end)
+    #
+    # x_size, y_size, lnglat_range = create_map_params(start, end)
+    #
+    # print(list_xy_to_lnglat(obstacle, lnglat_range, x_size, y_size))

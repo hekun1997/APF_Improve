@@ -318,7 +318,11 @@ def apf(x_size, y_size, start_xy, end_xy, obs_XY, enemy_XY, lnglat_range):
 
 
 if __name__ == '__main__':
-    # input_data = ['(103.92363,31.26324)', '(103.9959,31.28437)',
+    # import datetime
+    # print(datetime.datetime.now())
+    use_gdal = True
+
+    # input_data = ['(103.9135,31.31683)', '(103.94929,31.3272)',
     #               '[]', '[]']
 
     # 其他模块调用路径规划算法,需要下列代码
@@ -328,6 +332,6 @@ if __name__ == '__main__':
 
     start, end, dynamic_obs, enemys = sysIN(input_data)
 
-    lnglat_path, obs_xy, lnglat_range, x_size, y_size = runTheProject(start, end, dynamic_obs, enemys)
+    lnglat_path, obs_xy, lnglat_range, x_size, y_size = runTheProject(start, end, dynamic_obs, enemys, use_gdal=use_gdal)
 
     print(lnglat_path)
