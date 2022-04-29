@@ -1,7 +1,7 @@
 import pandas as pd
-import numpy as np
+# import numpy as np
 from math import radians, cos, sin, asin, sqrt
-from geopy.distance import geodesic
+# from geopy.distance import geodesic
 
 # longtitude经度
 # latitude纬度

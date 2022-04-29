@@ -1,4 +1,4 @@
-import sys
+# import sys
 from back_up.APF import *
 from MapProcess import *
 from Position import sysIN

@@ -2,6 +2,7 @@ import math
 # import gdal
 from matplotlib import pyplot as plt
 from osgeo import gdal
+import os
 
 import gradient
 
@@ -97,7 +98,7 @@ def adjustment_lnglat(lng, lat, dataset):
     return (lng, lat)
 
 
-def concat_lnglat_path(lng, lat, base_path=r'D:\PycharmWorkSpace\apf_enemy\Data', dir_prefix = 'ASTGTM2_'):
+def concat_lnglat_path(lng, lat, dir_prefix='ASTGTM2_'):  # base_path=r'D:\PycharmWorkSpace\apf_enemy\Data',
     lng = math.ceil(lng)
     lat = math.floor(lat)
     lnglat = ''
@@ -111,8 +112,12 @@ def concat_lnglat_path(lng, lat, base_path=r'D:\PycharmWorkSpace\apf_enemy\Data'
     else:
         lnglat += 'W' + str(lng)
 
-    path = base_path + '\\' + dir_prefix + lnglat + '\\' + dir_prefix + lnglat + '_dem.tif'
+    base_path = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + os.path.sep + ".")
+    base_path = os.path.join(base_path, "Data")
 
+    #path = base_path + '\\' + dir_prefix + lnglat + '\\' + dir_prefix + lnglat + '_dem.tif'
+    path = os.path.join(base_path, dir_prefix + lnglat, dir_prefix + lnglat + '_dem.tif')
+    # print(path)
     return lnglat, path
 
 
@@ -266,8 +271,9 @@ def assemble_input_data(input_data):
 
 
 if __name__ == '__main__':
-    input_data = ['(103.91496,31.25339)', '(103.95037,31.28386)',
-                  '[]', '[]']
+    # input_data = ['(103.91496,31.25339)', '(103.95037,31.28386)',
+    #               '[]', '[]']
+    print(os.path.join("a", "b", "c"))
 
     # 其他模块调用路径规划算法,需要下列代码
     # input_data = []

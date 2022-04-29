@@ -1,6 +1,6 @@
 from DE import DE
-import numpy as np
-from DE_apf import de_apf
+# import numpy as np
+# from DE_apf import de_apf
 
 
 def run_de():
